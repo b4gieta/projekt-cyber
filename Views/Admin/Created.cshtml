@@ -1,0 +1,11 @@
+﻿@model projekt_cyber.ViewModels.CreatedUserViewModel
+
+<h1>Konto zostało utworzone</h1>
+
+<p>Login: <strong>@Model.UserName</strong></p>
+<p>Hasło jednorazowe: <strong>@Model.OneTimePassword</strong></p>
+<p>Ważne do: @Model.ExpiresAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+
+<p>Przekaż hasło użytkownikowi. Nie będzie ponownie wyświetlane w panelu.</p>
+
+<p><a asp-action="Index">Powrót do panelu administratora</a></p>

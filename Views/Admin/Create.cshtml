@@ -1,0 +1,32 @@
+﻿@model projekt_cyber.ViewModels.CreateUserViewModel
+
+<h1>Utwórz użytkownika</h1>
+
+<div asp-validation-summary="All"></div>
+
+<form asp-action="Create" method="post">
+    <div>
+        <label asp-for="UserName">Login</label>
+        <input asp-for="UserName" />
+        <span asp-validation-for="UserName"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email">E-mail</label>
+        <input asp-for="Email" type="email" />
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div>
+        <label asp-for="Role">Rola</label>
+        <select asp-for="Role">
+            <option value="Czytelnik">Czytelnik</option>
+            <option value="Redaktor">Redaktor</option>
+        </select>
+        <span asp-validation-for="Role"></span>
+    </div>
+
+    <button type="submit">Utwórz konto</button>
+</form>
+
+<p><a asp-action="Index">Powrót do listy</a></p>

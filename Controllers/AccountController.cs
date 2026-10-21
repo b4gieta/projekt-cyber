@@ -19,45 +19,6 @@ namespace projekt_cyber.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Register() => View();
-
-        [AllowAnonymous]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = new ApplicationUser
-            {
-                UserName = model.UserName,
-                Email = model.Email,
-                MustChangePassword = false
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors) ModelState.AddModelError("", error.Description);
-                return View(model);
-            }
-
-            var roleResult = await _userManager.AddToRoleAsync(user, "Czytelnik");
-
-            if (!roleResult.Succeeded)
-            {
-                await _userManager.DeleteAsync(user);
-                ModelState.AddModelError("", "Nie udało się utworzyć konta.");
-                return View(model);
-            }
-
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            return RedirectToAction("Index", "Home");
-        }
-
-        [AllowAnonymous]
-        [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -89,7 +50,20 @@ namespace projekt_cyber.Controllers
 
             if (result.Succeeded)
             {
+                if (user.MustChangePassword)
+                {
+                    if (user.OneTimePasswordExpiresAt == null || user.OneTimePasswordExpiresAt <= DateTime.UtcNow)
+                    {
+                        await _signInManager.SignOutAsync();
+                        ModelState.AddModelError("", "Hasło jednorazowe wygasło. Skontaktuj się z administratorem.");
+                        return View(model);
+                    }
+
+                    return RedirectToAction(nameof(ChangeInitialPassword));
+                }
+
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)) return LocalRedirect(returnUrl);
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -108,5 +82,53 @@ namespace projekt_cyber.Controllers
 
         [AllowAnonymous]
         public IActionResult AccessDenied() => Content("Brak uprawnień.");
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ChangeInitialPassword()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return Challenge();
+            if (!user.MustChangePassword) return RedirectToAction("Index", "Home");
+
+            return View(new ChangeInitialPasswordViewModel());
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeInitialPassword(ChangeInitialPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return Challenge();
+            if (!user.MustChangePassword) return RedirectToAction("Index", "Home");
+
+            if (user.OneTimePasswordExpiresAt == null || user.OneTimePasswordExpiresAt <= DateTime.UtcNow)
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(Login));
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors) ModelState.AddModelError("", error.Description);
+                return View(model);
+            }
+
+            user.MustChangePassword = false;
+            user.OneTimePasswordExpiresAt = null;
+
+            await _userManager.UpdateAsync(user);
+            await _signInManager.RefreshSignInAsync(user);
+
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

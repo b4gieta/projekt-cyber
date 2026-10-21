@@ -7,9 +7,13 @@
     <form asp-controller="Account" asp-action="Logout" method="post">
         <button type="submit">Wyloguj</button>
     </form>
+
+    @if (User.IsInRole("Administrator"))
+    {
+        <p><a asp-controller="Admin" asp-action="Index">Panel administratora</a></p>
+    }
 }
 else
 {
     <p><a asp-controller="Account" asp-action="Login">Zaloguj</a></p>
-    <p><a asp-controller="Account" asp-action="Register">Zarejestruj się</a></p>
 }

@@ -1,0 +1,29 @@
+﻿@model List<projekt_cyber.ViewModels.AdminUserRowViewModel>
+
+<h1>Panel administratora</h1>
+
+<p><a asp-action="Create">Utwórz użytkownika</a></p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Login</th>
+            <th>E-mail</th>
+            <th>Rola</th>
+            <th>Zablokowany</th>
+            <th>Wymagana zmiana hasła</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>@(user.IsBlocked ? "Tak" : "Nie")</td>
+                <td>@(user.MustChangePassword ? "Tak" : "Nie")</td>
+            </tr>
+        }
+    </tbody>
+</table>
