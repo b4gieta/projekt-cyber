@@ -1,0 +1,23 @@
+﻿@model projekt_cyber.ViewModels.LoginViewModel
+
+<h1>Logowanie</h1>
+
+<form asp-action="Login" method="post">
+    <div asp-validation-summary="All"></div>
+
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]">
+
+    <p>
+        <label asp-for="UserName">Login</label><br>
+        <input asp-for="UserName" autocomplete="username">
+    </p>
+
+    <p>
+        <label asp-for="Password">Hasło</label><br>
+        <input asp-for="Password" autocomplete="current-password">
+    </p>
+
+    <button type="submit">Zaloguj</button>
+</form>
+
+<p><a asp-action="Register">Utwórz konto</a></p>

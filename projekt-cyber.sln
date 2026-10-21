@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36930.0 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "projekt-cyber", "projekt-cyber.csproj", "{020E8BF6-F592-4C05-89C4-67A948EFB439}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{020E8BF6-F592-4C05-89C4-67A948EFB439}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{020E8BF6-F592-4C05-89C4-67A948EFB439}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{020E8BF6-F592-4C05-89C4-67A948EFB439}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{020E8BF6-F592-4C05-89C4-67A948EFB439}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {10873E1D-469B-4A3F-BC4D-127260A3DEF1}
+	EndGlobalSection
+EndGlobal
