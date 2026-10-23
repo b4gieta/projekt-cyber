@@ -2,6 +2,16 @@
 
 <h1>Panel administratora</h1>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <p>@TempData["SuccessMessage"]</p>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <p>@TempData["ErrorMessage"]</p>
+}
+
 <p><a asp-action="Create">Utwórz użytkownika</a></p>
 
 <table>
@@ -12,6 +22,7 @@
             <th>Rola</th>
             <th>Zablokowany</th>
             <th>Wymagana zmiana hasła</th>
+            <th>Akcje</th>
         </tr>
     </thead>
     <tbody>
@@ -23,6 +34,20 @@
                 <td>@user.Role</td>
                 <td>@(user.IsBlocked ? "Tak" : "Nie")</td>
                 <td>@(user.MustChangePassword ? "Tak" : "Nie")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@user.Id">Edytuj</a>
+
+                    <form asp-action="ToggleBlock" asp-route-id="@user.Id" method="post" style="display:inline">
+                        <button type="submit">
+                            @(user.IsBlocked ? "Odblokuj" : "Zablokuj")
+                        </button>
+                    </form>
+
+                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline"
+                          onsubmit="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">
+                        <button type="submit">Usuń</button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

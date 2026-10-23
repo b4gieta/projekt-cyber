@@ -23,6 +23,7 @@ namespace projekt_cyber.ViewModels
         public string Role { get; set; } = "";
         public bool IsBlocked { get; set; }
         public bool MustChangePassword { get; set; }
+        public string Id { get; set; } = "";
     }
 
     public class CreatedUserViewModel
@@ -42,5 +43,14 @@ namespace projekt_cyber.ViewModels
         [DataType(DataType.Password)]
         [Compare(nameof(NewPassword), ErrorMessage = "Hasła nie są identyczne.")]
         public string ConfirmPassword { get; set; } = "";
+    }
+
+    public class EditUserViewModel
+    {
+        public string Id { get; set; } = "";
+
+        [Required(ErrorMessage = "Podaj login.")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Login musi mieć od 3 do 50 znaków.")]
+        public string UserName { get; set; } = "";
     }
 }

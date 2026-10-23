@@ -1,0 +1,19 @@
+﻿@model projekt_cyber.ViewModels.EditUserViewModel
+
+<h1>Edytuj użytkownika</h1>
+
+<div asp-validation-summary="All"></div>
+
+<form asp-action="Edit" method="post">
+    <input asp-for="Id" type="hidden" />
+
+    <div>
+        <label asp-for="UserName">Nowy login</label>
+        <input asp-for="UserName" />
+        <span asp-validation-for="UserName"></span>
+    </div>
+
+    <button type="submit">Zapisz zmiany</button>
+</form>
+
+<p><a asp-action="Index">Powrót do listy</a></p>

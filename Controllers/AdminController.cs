@@ -27,6 +27,7 @@ namespace projekt_cyber.Controllers
             {
                 model.Add(new AdminUserRowViewModel
                 {
+                    Id = user.Id,
                     UserName = user.UserName ?? "",
                     Email = user.Email ?? "",
                     Role = string.Join(", ", await _userManager.GetRolesAsync(user)),
@@ -109,6 +110,116 @@ namespace projekt_cyber.Controllers
             }
 
             return new string(password);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null) return NotFound();
+
+            return View(new EditUserViewModel
+            {
+                Id = user.Id,
+                UserName = user.UserName ?? ""
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(EditUserViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.FindByIdAsync(model.Id);
+
+            if (user == null) return NotFound();
+
+            var result = await _userManager.SetUserNameAsync(user, model.UserName.Trim());
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(nameof(model.UserName), error.Description);
+
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Login został zmieniony.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleBlock(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null) return NotFound();
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser?.Id == user.Id)
+            {
+                TempData["ErrorMessage"] = "Nie możesz zablokować własnego konta.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!user.IsBlocked && await IsLastAdministratorAsync(user))
+            {
+                TempData["ErrorMessage"] = "Nie można zablokować ostatniego administratora.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            user.IsBlocked = !user.IsBlocked;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            TempData[result.Succeeded ? "SuccessMessage" : "ErrorMessage"] =
+                result.Succeeded
+                    ? (user.IsBlocked ? "Konto zostało zablokowane." : "Konto zostało odblokowane.")
+                    : "Nie udało się zmienić statusu konta.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null) return NotFound();
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser?.Id == user.Id)
+            {
+                TempData["ErrorMessage"] = "Nie możesz usunąć własnego konta.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (await IsLastAdministratorAsync(user))
+            {
+                TempData["ErrorMessage"] = "Nie można usunąć ostatniego administratora.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            TempData[result.Succeeded ? "SuccessMessage" : "ErrorMessage"] =
+                result.Succeeded ? "Użytkownik został usunięty." : "Nie udało się usunąć użytkownika.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<bool> IsLastAdministratorAsync(ApplicationUser user)
+        {
+            if (!await _userManager.IsInRoleAsync(user, "Administrator")) return false;
+
+            var admins = await _userManager.GetUsersInRoleAsync("Administrator");
+            return admins.Count == 1;
         }
     }
 }
