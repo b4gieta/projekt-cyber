@@ -227,6 +227,9 @@ namespace projekt_cyber.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("IdleTimeoutMinutes")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("RejectThreeRepeatedChars")
                         .HasColumnType("INTEGER");
 

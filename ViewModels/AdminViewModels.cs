@@ -62,5 +62,8 @@ namespace projekt_cyber.ViewModels
     public class PasswordPolicyViewModel
     {
         public bool RejectThreeRepeatedChars { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(1, 1440, ErrorMessage = "Podaj czas od 1 do 1440 minut.")]
+        public int IdleTimeoutMinutes { get; set; } = 30;
     }
 }

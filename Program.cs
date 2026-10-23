@@ -33,7 +33,28 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(24);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var settings = await db.PasswordPolicySettings.FindAsync(1);
+
+    if (settings != null && settings.IdleTimeoutMinutes <= 0)
+    {
+        settings.IdleTimeoutMinutes = 1;
+        await db.SaveChangesAsync();
+    }
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -45,8 +66,46 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthentication();
+
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated != true ||
+        context.Request.Path == "/Account/Login")
+    {
+        await next();
+        return;
+    }
+
+    var db = context.RequestServices.GetRequiredService<ApplicationDbContext>();
+    var signInManager = context.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>();
+
+    var settings = await db.PasswordPolicySettings.FindAsync(1);
+    var timeoutMinutes = settings?.IdleTimeoutMinutes ?? 30;
+    var now = DateTime.UtcNow;
+
+    var lastActivityTicks = context.Session.GetString("LastActivityTicks");
+
+    if (long.TryParse(lastActivityTicks, out var ticks))
+    {
+        var lastActivity = new DateTime(ticks, DateTimeKind.Utc);
+
+        if (now - lastActivity >= TimeSpan.FromMinutes(timeoutMinutes))
+        {
+            await signInManager.SignOutAsync();
+            context.Session.Clear();
+            context.Response.Redirect("/Account/Login?expired=true");
+            return;
+        }
+    }
+
+    context.Session.SetString("LastActivityTicks", now.Ticks.ToString());
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapControllerRoute(

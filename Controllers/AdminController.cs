@@ -272,7 +272,8 @@ namespace projekt_cyber.Controllers
 
             return View(new PasswordPolicyViewModel
             {
-                RejectThreeRepeatedChars = settings.RejectThreeRepeatedChars
+                RejectThreeRepeatedChars = settings.RejectThreeRepeatedChars,
+                IdleTimeoutMinutes = settings.IdleTimeoutMinutes
             });
         }
 
@@ -289,6 +290,7 @@ namespace projekt_cyber.Controllers
             }
 
             settings.RejectThreeRepeatedChars = model.RejectThreeRepeatedChars;
+            settings.IdleTimeoutMinutes = model.IdleTimeoutMinutes;
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Zapisano ustawienia polityki haseł.";
