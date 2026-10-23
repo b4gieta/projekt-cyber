@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using projekt_cyber.Data;
 using projekt_cyber.Models;
 using projekt_cyber.ViewModels;
 using System.Security.Cryptography;
@@ -11,10 +12,12 @@ namespace projekt_cyber.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public AdminController(UserManager<ApplicationUser> userManager)
+        public AdminController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
         [HttpGet]
@@ -32,7 +35,8 @@ namespace projekt_cyber.Controllers
                     Email = user.Email ?? "",
                     Role = string.Join(", ", await _userManager.GetRolesAsync(user)),
                     IsBlocked = user.IsBlocked,
-                    MustChangePassword = user.MustChangePassword
+                    MustChangePassword = user.MustChangePassword,
+                    PasswordExpiresAt = user.PasswordExpiresAt
                 });
             }
 
@@ -122,7 +126,8 @@ namespace projekt_cyber.Controllers
             return View(new EditUserViewModel
             {
                 Id = user.Id,
-                UserName = user.UserName ?? ""
+                UserName = user.UserName ?? "",
+                Email = user.Email ?? ""
             });
         }
 
@@ -142,6 +147,16 @@ namespace projekt_cyber.Controllers
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(nameof(model.UserName), error.Description);
+
+                return View(model);
+            }
+
+            var emailResult = await _userManager.SetEmailAsync(user, model.Email);
+
+            if (!emailResult.Succeeded)
+            {
+                foreach (var error in emailResult.Errors)
+                    ModelState.AddModelError(nameof(model.Email), error.Description);
 
                 return View(model);
             }
@@ -241,6 +256,43 @@ namespace projekt_cyber.Controllers
                     : "Nie udało się wymusić zmiany hasła.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PasswordPolicy()
+        {
+            var settings = await _context.PasswordPolicySettings.FindAsync(1);
+
+            if (settings == null)
+            {
+                settings = new PasswordPolicySettings();
+                _context.PasswordPolicySettings.Add(settings);
+                await _context.SaveChangesAsync();
+            }
+
+            return View(new PasswordPolicyViewModel
+            {
+                RejectThreeRepeatedChars = settings.RejectThreeRepeatedChars
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PasswordPolicy(PasswordPolicyViewModel model)
+        {
+            var settings = await _context.PasswordPolicySettings.FindAsync(1);
+
+            if (settings == null)
+            {
+                settings = new PasswordPolicySettings();
+                _context.PasswordPolicySettings.Add(settings);
+            }
+
+            settings.RejectThreeRepeatedChars = model.RejectThreeRepeatedChars;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Zapisano ustawienia polityki haseł.";
+            return RedirectToAction(nameof(PasswordPolicy));
         }
     }
 }

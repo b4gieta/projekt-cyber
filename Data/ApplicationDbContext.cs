@@ -7,5 +7,7 @@ namespace projekt_cyber.Data
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        public DbSet<PasswordPolicySettings> PasswordPolicySettings => Set<PasswordPolicySettings>();
     }
 }

@@ -14,6 +14,8 @@
 
 <p><a asp-action="Create">Utwórz użytkownika</a></p>
 
+<p><a asp-action="PasswordPolicy">Ustawienia polityki haseł</a></p>
+
 <table>
     <thead>
         <tr>
@@ -22,6 +24,7 @@
             <th>Rola</th>
             <th>Zablokowany</th>
             <th>Wymagana zmiana hasła</th>
+            <th>Ważność hasła</th>
             <th>Akcje</th>
         </tr>
     </thead>
@@ -34,6 +37,11 @@
                 <td>@user.Role</td>
                 <td>@(user.IsBlocked ? "Tak" : "Nie")</td>
                 <td>@(user.MustChangePassword ? "Tak" : "Nie")</td>
+                <td>
+                    @(user.PasswordExpiresAt.HasValue
+                                    ? user.PasswordExpiresAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                                    : "Nieokreślona")
+                </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@user.Id">Edytuj</a>
 

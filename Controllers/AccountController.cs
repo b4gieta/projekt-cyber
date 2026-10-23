@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using projekt_cyber.Data;
 using projekt_cyber.Models;
+using projekt_cyber.Services;
 using projekt_cyber.ViewModels;
 
 namespace projekt_cyber.Controllers
@@ -10,11 +12,13 @@ namespace projekt_cyber.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         [AllowAnonymous]
@@ -115,6 +119,12 @@ namespace projekt_cyber.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
+            if (await HasInvalidPasswordAsync(model.NewPassword))
+            {
+                ModelState.AddModelError(nameof(model.NewPassword), "Hasło nie może zawierać trzech identycznych znaków pod rząd.");
+                return View(model);
+            }
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
 
@@ -157,6 +167,12 @@ namespace projekt_cyber.Controllers
             if (user == null) return Challenge();
             if (user.MustChangePassword) return RedirectToAction(nameof(ChangeInitialPassword));
 
+            if (await HasInvalidPasswordAsync(model.NewPassword))
+            {
+                ModelState.AddModelError(nameof(model.NewPassword), "Hasło nie może zawierać trzech identycznych znaków pod rząd.");
+                return View(model);
+            }
+
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
             if (!result.Succeeded)
@@ -176,6 +192,14 @@ namespace projekt_cyber.Controllers
 
             TempData["SuccessMessage"] = "Hasło zostało zmienione.";
             return RedirectToAction("Index", "Home");
+        }
+
+        private async Task<bool> HasInvalidPasswordAsync(string password)
+        {
+            var settings = await _context.PasswordPolicySettings.FindAsync(1);
+
+            return settings?.RejectThreeRepeatedChars == true &&
+                   PasswordPolicyValidator.HasThreeRepeatedChars(password);
         }
     }
 }

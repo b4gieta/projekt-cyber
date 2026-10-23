@@ -24,6 +24,7 @@ namespace projekt_cyber.ViewModels
         public bool IsBlocked { get; set; }
         public bool MustChangePassword { get; set; }
         public string Id { get; set; } = "";
+        public DateTime? PasswordExpiresAt { get; set; }
     }
 
     public class CreatedUserViewModel
@@ -52,5 +53,14 @@ namespace projekt_cyber.ViewModels
         [Required(ErrorMessage = "Podaj login.")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Login musi mieć od 3 do 50 znaków.")]
         public string UserName { get; set; } = "";
+
+        [Required(ErrorMessage = "Email jest wymagany.")]
+        [EmailAddress(ErrorMessage = "Podaj poprawny adres email.")]
+        public string Email { get; set; } = "";
+    }
+
+    public class PasswordPolicyViewModel
+    {
+        public bool RejectThreeRepeatedChars { get; set; }
     }
 }
