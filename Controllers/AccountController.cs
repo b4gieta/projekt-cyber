@@ -130,5 +130,50 @@ namespace projekt_cyber.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return Challenge();
+            if (user.MustChangePassword) return RedirectToAction(nameof(ChangeInitialPassword));
+
+            return View(new ChangePasswordViewModel());
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return Challenge();
+            if (user.MustChangePassword) return RedirectToAction(nameof(ChangeInitialPassword));
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    if (error.Code == "PasswordMismatch")
+                        ModelState.AddModelError(nameof(model.CurrentPassword), "Aktualne hasło jest nieprawidłowe.");
+                    else
+                        ModelState.AddModelError(nameof(model.NewPassword), error.Description);
+                }
+
+                return View(model);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+
+            TempData["SuccessMessage"] = "Hasło zostało zmienione.";
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

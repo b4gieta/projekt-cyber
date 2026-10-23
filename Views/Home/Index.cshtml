@@ -8,6 +8,8 @@
         <button type="submit">Wyloguj</button>
     </form>
 
+    <p><a asp-controller="Account" asp-action="ChangePassword">Zmień hasło</a></p>
+
     @if (User.IsInRole("Administrator"))
     {
         <p><a asp-controller="Admin" asp-action="Index">Panel administratora</a></p>

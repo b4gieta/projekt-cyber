@@ -45,8 +45,7 @@ namespace projekt_cyber.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateUserViewModel model)
         {
-            if (model.Role != "Redaktor" && model.Role != "Czytelnik")
-                ModelState.AddModelError(nameof(model.Role), "Nieprawidłowa rola.");
+            if (model.Role != "Redaktor" && model.Role != "Czytelnik") ModelState.AddModelError(nameof(model.Role), "Nieprawidłowa rola.");
 
             if (!ModelState.IsValid) return View(model);
 
@@ -101,8 +100,7 @@ namespace projekt_cyber.Controllers
             password[1] = upper[RandomNumberGenerator.GetInt32(upper.Length)];
             password[2] = digits[RandomNumberGenerator.GetInt32(digits.Length)];
 
-            for (var i = 3; i < password.Length; i++)
-                password[i] = all[RandomNumberGenerator.GetInt32(all.Length)];
+            for (var i = 3; i < password.Length; i++) password[i] = all[RandomNumberGenerator.GetInt32(all.Length)];
 
             for (var i = password.Length - 1; i > 0; i--)
             {
