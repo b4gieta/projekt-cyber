@@ -47,6 +47,10 @@
                           onsubmit="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">
                         <button type="submit">Usuń</button>
                     </form>
+
+                    <form asp-action="ForcePasswordChange" asp-route-id="@user.Id" method="post" style="display:inline">
+                        <button type="submit">Wymuś zmianę hasła</button>
+                    </form>
                 </td>
             </tr>
         }

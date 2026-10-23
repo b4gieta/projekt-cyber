@@ -221,5 +221,26 @@ namespace projekt_cyber.Controllers
             var admins = await _userManager.GetUsersInRoleAsync("Administrator");
             return admins.Count == 1;
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForcePasswordChange(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null) return NotFound();
+
+            user.MustChangePassword = true;
+            user.OneTimePasswordExpiresAt = null;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            TempData[result.Succeeded ? "SuccessMessage" : "ErrorMessage"] =
+                result.Succeeded
+                    ? $"Wymuszono zmianę hasła dla użytkownika {user.UserName}."
+                    : "Nie udało się wymusić zmiany hasła.";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
