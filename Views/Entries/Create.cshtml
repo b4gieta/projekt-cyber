@@ -1,0 +1,23 @@
+﻿@model projekt_cyber.ViewModels.EntryCreateViewModel
+
+<h1>Dodaj wpis</h1>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div>
+        <label asp-for="Title">Tytuł</label>
+        <input asp-for="Title" />
+        <span asp-validation-for="Title"></span>
+    </div>
+
+    <div>
+        <label asp-for="Content">Treść</label>
+        <textarea asp-for="Content" rows="8"></textarea>
+        <span asp-validation-for="Content"></span>
+    </div>
+
+    <button type="submit">Dodaj wpis</button>
+</form>
+
+<p><a asp-controller="Home" asp-action="Index">Powrót</a></p>

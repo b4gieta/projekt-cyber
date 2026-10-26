@@ -9,5 +9,7 @@ namespace projekt_cyber.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<PasswordPolicySettings> PasswordPolicySettings => Set<PasswordPolicySettings>();
+
+        public DbSet<Entry> Entries => Set<Entry>();
     }
 }

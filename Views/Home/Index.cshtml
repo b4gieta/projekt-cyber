@@ -1,4 +1,6 @@
-﻿<h1>Strona główna</h1>
+﻿@model IEnumerable<projekt_cyber.Models.Entry>
+
+<h1>Strona główna</h1>
 
 @if (User.Identity?.IsAuthenticated == true)
 {
@@ -18,4 +20,50 @@
 else
 {
     <p><a asp-controller="Account" asp-action="Login">Zaloguj</a></p>
+}
+
+<h1>Wpisy</h1>
+
+@if (TempData["Message"] != null)
+{
+    <p>@TempData["Message"]</p>
+}
+
+@if (User.IsInRole("Redaktor") || User.IsInRole("Administrator"))
+{
+    <p>
+        <a asp-controller="Entries" asp-action="Create">Dodaj wpis</a>
+    </p>
+}
+
+@if (!Model.Any())
+{
+    <p>Nie ma jeszcze żadnych wpisów.</p>
+}
+else
+{
+    @foreach (var entry in Model)
+    {
+        <article>
+            <h2>@entry.Title</h2>
+
+            <p>@entry.Content</p>
+
+            <small>
+                Dodano: @entry.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                |
+                Autor: @(entry.Author?.UserName ?? "Nieznany")
+            </small>
+
+            @if (User.IsInRole("Redaktor") || User.IsInRole("Administrator"))
+            {
+                <form asp-controller="Entries" asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@entry.Id" />
+                    <button type="submit">Usuń wpis</button>
+                </form>
+            }
+        </article>
+
+        <hr />
+    }
 }
