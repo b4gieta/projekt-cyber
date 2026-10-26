@@ -1,66 +1,135 @@
 ﻿@model List<projekt_cyber.ViewModels.AdminUserRowViewModel>
 
-<h1>Panel administratora</h1>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 fw-bold mb-1">Panel administratora</h1>
+        <p class="text-secondary mb-0">Zarządzaj użytkownikami i ustawieniami bezpieczeństwa.</p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="PasswordPolicy" class="btn btn-outline-secondary">
+            Polityka haseł
+        </a>
+        <a asp-action="Create" class="btn btn-primary">
+            + Utwórz użytkownika
+        </a>
+    </div>
+</div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <p>@TempData["SuccessMessage"]</p>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
+    </div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <p>@TempData["ErrorMessage"]</p>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
+    </div>
 }
 
-<p><a asp-action="Create">Utwórz użytkownika</a></p>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="h5 fw-semibold mb-0">Użytkownicy</h2>
+            <span class="badge bg-secondary">@Model.Count użytkowników</span>
+        </div>
+    </div>
 
-<p><a asp-action="PasswordPolicy">Ustawienia polityki haseł</a></p>
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <p class="text-secondary mb-0">Brak użytkowników do wyświetlenia.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Login</th>
+                        <th>E-mail</th>
+                        <th>Rola</th>
+                        <th>Status</th>
+                        <th>Zmiana hasła</th>
+                        <th>Ważność hasła</th>
+                        <th class="pe-3">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-semibold text-nowrap">@user.UserName</td>
+                            <td>
+                                <span class="d-block text-truncate" style="max-width: 200px;" title="@user.Email">
+                                    @(string.IsNullOrEmpty(user.Email) ? "—" : user.Email)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">@user.Role</span>
+                            </td>
+                            <td>
+                                @if (user.IsBlocked)
+                                {
+                                    <span class="badge bg-danger">Zablokowany</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Aktywny</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.MustChangePassword)
+                                {
+                                    <span class="badge bg-warning text-dark">Wymagana</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">Nie</span>
+                                }
+                        </td>
+                        <td class="text-nowrap small text-secondary">
+                            @(user.PasswordExpiresAt.HasValue
+                                                    ? user.PasswordExpiresAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                                                    : "Nieokreślona")
+                    </td>
+                    <td class="pe-3">
+                        <div class="d-flex flex-wrap gap-1">
+                            <a asp-action="Edit" asp-route-id="@user.Id"
+                               class="btn btn-outline-primary btn-sm">
+                                Edytuj
+                            </a>
 
-<table>
-    <thead>
-        <tr>
-            <th>Login</th>
-            <th>E-mail</th>
-            <th>Rola</th>
-            <th>Zablokowany</th>
-            <th>Wymagana zmiana hasła</th>
-            <th>Ważność hasła</th>
-            <th>Akcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>@user.Role</td>
-                <td>@(user.IsBlocked ? "Tak" : "Nie")</td>
-                <td>@(user.MustChangePassword ? "Tak" : "Nie")</td>
-                <td>
-                    @(user.PasswordExpiresAt.HasValue
-                                    ? user.PasswordExpiresAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
-                                    : "Nieokreślona")
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@user.Id">Edytuj</a>
+                                    <form asp-action="ToggleBlock" asp-route-id="@user.Id" method="post">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm">
+                                            @(user.IsBlocked ? "Odblokuj" : "Zablokuj")
+                                        </button>
+                                    </form>
 
-                    <form asp-action="ToggleBlock" asp-route-id="@user.Id" method="post" style="display:inline">
-                        <button type="submit">
-                            @(user.IsBlocked ? "Odblokuj" : "Zablokuj")
-                        </button>
-                    </form>
+                                    <form asp-action="ForcePasswordChange" asp-route-id="@user.Id" method="post">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                            Wymuś zmianę hasła
+                                        </button>
+                                    </form>
 
-                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline"
-                          onsubmit="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">
-                        <button type="submit">Usuń</button>
-                    </form>
-
-                    <form asp-action="ForcePasswordChange" asp-route-id="@user.Id" method="post" style="display:inline">
-                        <button type="submit">Wymuś zmianę hasła</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post"
+                                          onsubmit="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            Usuń
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

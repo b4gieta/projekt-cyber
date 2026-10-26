@@ -1,21 +1,51 @@
 ﻿@model projekt_cyber.ViewModels.LoginViewModel
 
-<h1>Logowanie</h1>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+        <div class="text-center mb-4">
+            <h1 class="h2 fw-bold mb-2">Logowanie</h1>
+            <p class="text-secondary mb-0">Zaloguj się na swoje konto.</p>
+        </div>
 
-<form asp-action="Login" method="post">
-    <div asp-validation-summary="All"></div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
 
-    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]">
+                <form asp-action="Login" method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <ul class="mb-0 ps-3">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
+                        </div>
+                    }
 
-    <p>
-        <label asp-for="UserName">Login</label><br>
-        <input asp-for="UserName" autocomplete="username">
-    </p>
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
-    <p>
-        <label asp-for="Password">Hasło</label><br>
-        <input asp-for="Password" autocomplete="current-password">
-    </p>
+                    <div class="mb-4">
+                        <label asp-for="UserName" class="form-label fw-semibold">Login</label>
+                        <input asp-for="UserName" class="form-control"
+                               autocomplete="username" placeholder="Wpisz login" />
+                    </div>
 
-    <button type="submit">Zaloguj</button>
-</form>
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label fw-semibold">Hasło</label>
+                        <input asp-for="Password" type="password" class="form-control"
+                               autocomplete="current-password" placeholder="Wpisz hasło" />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            Zaloguj się
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,23 +1,32 @@
 ﻿@model projekt_cyber.ViewModels.EntryCreateViewModel
 
-<h1>Dodaj wpis</h1>
+<div class="mb-4">
+    <h1 class="h2 fw-bold mb-2">Dodaj wpis</h1>
+    <p class="text-secondary mb-0">Uzupełnij tytuł i treść nowego wpisu.</p>
+</div>
 
-<form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly"></div>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4 p-md-5">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-    <div>
-        <label asp-for="Title">Tytuł</label>
-        <input asp-for="Title" />
-        <span asp-validation-for="Title"></span>
+            <div class="mb-4">
+                <label asp-for="Title" class="form-label fw-semibold">Tytuł</label>
+                <input asp-for="Title" class="form-control" placeholder="Wpisz tytuł..." />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Content" class="form-label fw-semibold">Treść</label>
+                <textarea asp-for="Content" class="form-control" rows="8" placeholder="Napisz treść wpisu..."></textarea>
+                <span asp-validation-for="Content" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary px-4">
+                    Dodaj wpis
+                </button>
+            </div>
+        </form>
     </div>
-
-    <div>
-        <label asp-for="Content">Treść</label>
-        <textarea asp-for="Content" rows="8"></textarea>
-        <span asp-validation-for="Content"></span>
-    </div>
-
-    <button type="submit">Dodaj wpis</button>
-</form>
-
-<p><a asp-controller="Home" asp-action="Index">Powrót</a></p>
+</div>

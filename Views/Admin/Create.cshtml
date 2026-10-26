@@ -1,32 +1,53 @@
 ﻿@model projekt_cyber.ViewModels.CreateUserViewModel
 
-<h1>Utwórz użytkownika</h1>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="mb-4">
+            <h1 class="h2 fw-bold mb-2">Utwórz użytkownika</h1>
+            <p class="text-secondary mb-0">Utwórz konto i przypisz mu odpowiednią rolę.</p>
+        </div>
 
-<div asp-validation-summary="All"></div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Create" method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <ul class="mb-0 ps-3">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
+                        </div>
+                    }
 
-<form asp-action="Create" method="post">
-    <div>
-        <label asp-for="UserName">Login</label>
-        <input asp-for="UserName" />
-        <span asp-validation-for="UserName"></span>
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label fw-semibold">Login</label>
+                        <input asp-for="UserName" class="form-control" placeholder="Wpisz login" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">E-mail</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="Wpisz adres e-mail" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Role" class="form-label fw-semibold">Rola</label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="Czytelnik">Czytelnik</option>
+                            <option value="Redaktor">Redaktor</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            Utwórz konto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label asp-for="Email">E-mail</label>
-        <input asp-for="Email" type="email" />
-        <span asp-validation-for="Email"></span>
-    </div>
-
-    <div>
-        <label asp-for="Role">Rola</label>
-        <select asp-for="Role">
-            <option value="Czytelnik">Czytelnik</option>
-            <option value="Redaktor">Redaktor</option>
-        </select>
-        <span asp-validation-for="Role"></span>
-    </div>
-
-    <button type="submit">Utwórz konto</button>
-</form>
-
-<p><a asp-action="Index">Powrót do listy</a></p>
+</div>

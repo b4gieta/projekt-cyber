@@ -1,25 +1,47 @@
 ﻿@model projekt_cyber.ViewModels.EditUserViewModel
 
-<h1>Edytuj użytkownika</h1>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="mb-4">
+            <h1 class="h2 fw-bold mb-2">Edytuj użytkownika</h1>
+            <p class="text-secondary mb-0">Zaktualizuj dane konta użytkownika.</p>
+        </div>
 
-<div asp-validation-summary="All"></div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Edit" method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <ul class="mb-0 ps-3">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
+                        </div>
+                    }
 
-<form asp-action="Edit" method="post">
-    <input asp-for="Id" type="hidden" />
+                    <input asp-for="Id" type="hidden" />
 
-    <div>
-        <label asp-for="UserName">Nowy login</label>
-        <input asp-for="UserName" />
-        <span asp-validation-for="UserName"></span>
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label fw-semibold">Nowy login</label>
+                        <input asp-for="UserName" class="form-control" placeholder="Wpisz login" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Email" class="form-label fw-semibold">E-mail</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="Wpisz adres e-mail" />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            Zapisz zmiany
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email"></span>
-    </div>
-
-    <button type="submit">Zapisz zmiany</button>
-</form>
-
-<p><a asp-action="Index">Powrót do listy</a></p>
+</div>
