@@ -99,7 +99,7 @@ namespace projekt_cyber.Controllers
             const string digits = "0123456789";
             const string all = lower + upper + digits;
 
-            var password = new char[12];
+            var password = new char[15];
 
             password[0] = lower[RandomNumberGenerator.GetInt32(lower.Length)];
             password[1] = upper[RandomNumberGenerator.GetInt32(upper.Length)];

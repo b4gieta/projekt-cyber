@@ -29,13 +29,11 @@ namespace projekt_cyber.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EntryCreateViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
             var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-                return Challenge();
+            if (user == null) return Challenge();
 
             var entry = new Entry
             {
@@ -58,8 +56,7 @@ namespace projekt_cyber.Controllers
         {
             var entry = await _context.Entries.FindAsync(id);
 
-            if (entry == null)
-                return NotFound();
+            if (entry == null) return NotFound();
 
             _context.Entries.Remove(entry);
             await _context.SaveChangesAsync();

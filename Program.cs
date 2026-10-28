@@ -12,7 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    options.Password.RequiredLength = 8;
+    options.Password.RequiredLength = 15;
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;

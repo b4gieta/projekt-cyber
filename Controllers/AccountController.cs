@@ -56,8 +56,7 @@ namespace projekt_cyber.Controllers
             {
                 if (user.MustChangePassword)
                 {
-                    if (user.OneTimePasswordExpiresAt.HasValue &&
-                        user.OneTimePasswordExpiresAt.Value <= DateTime.UtcNow)
+                    if (user.OneTimePasswordExpiresAt.HasValue && user.OneTimePasswordExpiresAt.Value <= DateTime.UtcNow)
                     {
                         await _signInManager.SignOutAsync();
                         ModelState.AddModelError("", "Hasło jednorazowe wygasło. Skontaktuj się z administratorem.");
@@ -112,7 +111,6 @@ namespace projekt_cyber.Controllers
             if (user == null) return Challenge();
             if (!user.MustChangePassword) return RedirectToAction("Index", "Home");
 
-            // Sprawdzamy termin tylko wtedy, gdy konto ma hasło jednorazowe.
             if (user.OneTimePasswordExpiresAt.HasValue && user.OneTimePasswordExpiresAt.Value <= DateTime.UtcNow)
             {
                 await _signInManager.SignOutAsync();
