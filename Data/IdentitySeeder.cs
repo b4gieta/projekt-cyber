@@ -29,7 +29,7 @@ namespace projekt_cyber.Data
             {
                 var adminPassword = configuration["AdminInitialPassword"];
                 if (string.IsNullOrWhiteSpace(adminPassword)) throw new InvalidOperationException("Setup AdminInitialPassword before running the application.");
-                //dotnet user-secrets set "AdminInitialPassword" "Admin123!Start"
+                //dotnet user-secrets set "AdminInitialPassword" "Admin1234!Start"
 
                 admin = new ApplicationUser
                 {

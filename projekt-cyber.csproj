@@ -15,6 +15,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+    <PackageReference Include="ScottBrady91.AspNetCore.Identity.Argon2PasswordHasher" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
