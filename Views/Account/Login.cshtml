@@ -1,4 +1,7 @@
 ﻿@model projekt_cyber.ViewModels.LoginViewModel
+@using Microsoft.Extensions.Options
+@using projekt_cyber.Services
+@inject IOptions<RecaptchaSettings> Recaptcha
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-5">
@@ -38,6 +41,10 @@
                                autocomplete="current-password" placeholder="Wpisz hasło" />
                     </div>
 
+                    <div class="mb-4 d-flex justify-content-center">
+                        <div class="g-recaptcha" data-sitekey="@Recaptcha.Value.SiteKey"></div>
+                    </div>
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             Zaloguj się
@@ -49,3 +56,5 @@
         </div>
     </div>
 </div>
+
+<script src="https://www.google.com/recaptcha/api.js?hl=pl" async defer></script>

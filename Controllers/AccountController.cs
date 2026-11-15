@@ -13,12 +13,17 @@ namespace projekt_cyber.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly IRecaptchaService _recaptchaService;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
+        public AccountController(UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ApplicationDbContext context,
+            IRecaptchaService recaptchaService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _recaptchaService = recaptchaService;
         }
 
         [AllowAnonymous]
@@ -37,6 +42,13 @@ namespace projekt_cyber.Controllers
             ViewData["ReturnUrl"] = returnUrl;
 
             if (!ModelState.IsValid) return View(model);
+
+            var captchaToken = Request.Form["g-recaptcha-response"].ToString();
+            if (!await _recaptchaService.VerifyAsync(captchaToken))
+            {
+                ModelState.AddModelError("", "Potwierdź, że nie jesteś robotem.");
+                return View(model);
+            }
 
             var user = await _userManager.FindByNameAsync(model.UserName);
 
@@ -159,6 +171,13 @@ namespace projekt_cyber.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
+
+            var captchaToken = Request.Form["g-recaptcha-response"].ToString();
+            if (!await _recaptchaService.VerifyAsync(captchaToken))
+            {
+                ModelState.AddModelError("", "Potwierdź, że nie jesteś robotem.");
+                return View(model);
+            }
 
             var user = await _userManager.GetUserAsync(User);
 
