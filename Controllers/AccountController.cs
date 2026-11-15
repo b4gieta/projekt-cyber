@@ -45,14 +45,18 @@ namespace projekt_cyber.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
+            if (!string.IsNullOrWhiteSpace(model.Website))
+            {
+                ModelState.AddModelError("", "I am a bot");
+                return View(model);
+            }
+
             var captchaToken = Request.Form["g-recaptcha-response"].ToString();
             if (!await _recaptchaService.VerifyAsync(captchaToken))
             {
                 ModelState.AddModelError("", "Potwierdź, że nie jesteś robotem.");
                 return View(model);
             }
-
-            if (!string.IsNullOrWhiteSpace(model.Website)) return View(model);
 
             var user = await _userManager.FindByNameAsync(model.UserName);
 
