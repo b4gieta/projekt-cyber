@@ -15,6 +15,8 @@ namespace projekt_cyber.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IRecaptchaService _recaptchaService;
 
+        private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
+
         public AccountController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context,
@@ -58,6 +60,13 @@ namespace projekt_cyber.Controllers
                 return View(model);
             }
 
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                ViewBag.LockoutSecondsLeft = GetLockoutSecondsLeft(user);
+                ModelState.AddModelError("", "Konto jest czasowo zablokowane z powodu zbyt wielu błędnych prób logowania.");
+                return View(model);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(
                 model.UserName,
                 model.Password,
@@ -82,6 +91,33 @@ namespace projekt_cyber.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
+
+            if (result.IsLockedOut)
+            {
+                ViewBag.LockoutSecondsLeft = GetLockoutSecondsLeft(user);
+                ModelState.AddModelError("", "Konto jest czasowo zablokowane.");
+                return View(model);
+            }
+
+            var settings = await _context.PasswordPolicySettings.FindAsync(1);
+            var maxAttempts = Math.Max(1, settings?.MaxFailedLoginAttempts ?? 5);
+
+            if (!user.LockoutEnabled) await _userManager.SetLockoutEnabledAsync(user, true);
+
+            user.AccessFailedCount++;
+
+            if (user.AccessFailedCount >= maxAttempts)
+            {
+                user.AccessFailedCount = 0;
+                user.LockoutEnd = DateTimeOffset.UtcNow.Add(LockoutDuration);
+                await _userManager.UpdateAsync(user);
+
+                ViewBag.LockoutSecondsLeft = (int)LockoutDuration.TotalSeconds;
+                ModelState.AddModelError("", "Przekroczono limit prób logowania. Konto zostało zablokowane na 15 minut.");
+                return View(model);
+            }
+
+            await _userManager.UpdateAsync(user);
 
             ModelState.AddModelError("", "Login lub hasło niepoprawne");
             return View(model);
@@ -217,6 +253,12 @@ namespace projekt_cyber.Controllers
 
             return settings?.RejectThreeRepeatedChars == true &&
                    PasswordPolicyValidator.HasThreeRepeatedChars(password);
+        }
+
+        private static int GetLockoutSecondsLeft(ApplicationUser user)
+        {
+            var left = (user.LockoutEnd ?? DateTimeOffset.UtcNow) - DateTimeOffset.UtcNow;
+            return (int)Math.Max(0, Math.Ceiling(left.TotalSeconds));
         }
     }
 }

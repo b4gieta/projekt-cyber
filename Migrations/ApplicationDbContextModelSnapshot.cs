@@ -259,6 +259,9 @@ namespace projekt_cyber.Migrations
                     b.Property<int>("IdleTimeoutMinutes")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("MaxFailedLoginAttempts")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("RejectThreeRepeatedChars")
                         .HasColumnType("INTEGER");
 

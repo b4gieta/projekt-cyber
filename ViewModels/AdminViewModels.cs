@@ -63,7 +63,10 @@ namespace projekt_cyber.ViewModels
     {
         public bool RejectThreeRepeatedChars { get; set; }
 
-        [System.ComponentModel.DataAnnotations.Range(1, 1440, ErrorMessage = "Podaj czas od 1 do 1440 minut.")]
+        [Range(1, 1440, ErrorMessage = "Podaj czas od 1 do 1440 minut.")]
         public int IdleTimeoutMinutes { get; set; } = 30;
+
+        [Range(1, 100, ErrorMessage = "Podaj liczbę prób od 1 do 100.")]
+        public int MaxFailedLoginAttempts { get; set; } = 5;
     }
 }
