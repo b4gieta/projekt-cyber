@@ -5,6 +5,7 @@ using projekt_cyber.Data;
 using projekt_cyber.Models;
 using projekt_cyber.Services;
 using projekt_cyber.ViewModels;
+using System.Net.Http;
 
 namespace projekt_cyber.Controllers
 {
@@ -14,18 +15,25 @@ namespace projekt_cyber.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
         private readonly IRecaptchaService _recaptchaService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
         private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
 
         public AccountController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context,
-            IRecaptchaService recaptchaService)
+            IRecaptchaService recaptchaService, 
+            IHttpClientFactory httpClientFactory, 
+            IConfiguration configuration
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _recaptchaService = recaptchaService;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -45,16 +53,30 @@ namespace projekt_cyber.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
+            //trap
             if (!string.IsNullOrWhiteSpace(model.Website))
             {
                 ModelState.AddModelError("", "I am a bot");
                 return View(model);
             }
 
+            //captcha
             var captchaToken = Request.Form["g-recaptcha-response"].ToString();
             if (!await _recaptchaService.VerifyAsync(captchaToken))
             {
                 ModelState.AddModelError("", "Potwierdź, że nie jesteś robotem.");
+                return View(model);
+            }
+
+            //canary token
+            if (model.UserName == "ADMIN_backup")
+            {
+                var url = _configuration["CanaryTokens:HoneypotUrl"];
+                var client = _httpClientFactory.CreateClient();
+
+                await client.GetAsync(url);
+
+                ModelState.AddModelError("", "Login lub hasło niepoprawne");
                 return View(model);
             }
 

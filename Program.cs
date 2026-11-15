@@ -32,6 +32,8 @@ builder.Services.AddScoped<IPasswordHasher<ApplicationUser>, Argon2PasswordHashe
 builder.Services.Configure<RecaptchaSettings>(builder.Configuration.GetSection("Recaptcha"));
 builder.Services.AddHttpClient<IRecaptchaService, RecaptchaService>();
 
+builder.Services.AddHttpClient();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
