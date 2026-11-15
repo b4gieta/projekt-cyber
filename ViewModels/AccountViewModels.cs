@@ -10,6 +10,8 @@ namespace projekt_cyber.ViewModels
         [Required(ErrorMessage = "Podaj hasło.")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
+
+        public string? Website { get; set; }
     }
 
     public class ChangePasswordViewModel

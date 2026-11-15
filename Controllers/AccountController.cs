@@ -52,6 +52,8 @@ namespace projekt_cyber.Controllers
                 return View(model);
             }
 
+            if (!string.IsNullOrWhiteSpace(model.Website)) return View(model);
+
             var user = await _userManager.FindByNameAsync(model.UserName);
 
             if (user == null || user.IsBlocked)
